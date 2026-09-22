@@ -1,0 +1,16 @@
+# Summary
+
+* [Home](README.md)
+* [rrivctl documentation](rrivctl/rrivctl-manual.md)
+* [Data API](api/data.md)
+* [Board manual](hardware/manual/README.md)
+  * [Configuration](hardware/manual/configuration.md)
+  * [Troubleshooting](hardware/manual/troubleshooting.md)
+* [Firmware](firmware/README.md)
+  * [Technical background](firmware/technical-background/README.md)
+  * [System documentation](firmware/system-documentation/README.md)
+  * [Driver development](firmware/driver-development/README.md)
+    * [Traits and functions](firmware/driver-development/01-traits-and-functions.md)
+    * [Registry and settings](firmware/driver-development/02-registry-and-settings.md)
+    * [Driver template](firmware/driver-development/03-driver-template.md)
+    * [Implementation process](firmware/driver-development/04-implementation-process.md)

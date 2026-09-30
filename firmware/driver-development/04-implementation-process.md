@@ -29,6 +29,14 @@ With power disconnected, connect the sensor and make any required solder-bridge 
 
 Record the sensor-pin-to-board-pin mapping, connector name, voltage, and original/final bridge positions in the worksheet. Verify the wiring against those notes before powering the board. Someone repeating the test should be able to reproduce the connection from this record.
 
+### I2C sensors
+
+Check whether the voltage printed on the sensor board applies to the sensor chip or to a breakout board with its own regulator and level shifting. Then map power, ground, SDA, and SCL from the sensor board to the RRIV connector. Also record the sensor address and any address-select jumper position.
+
+On RRIV v0.4.2, SB25 supplies 5 V to the primary I2C power pins and SB26 supplies 3.3 V. They are mutually exclusive and must not both be installed. The 5 V rail is not powered by default, and J6 has additional bridge options, so check the [board configuration](../../hardware/manual/configuration.md) before changing a bridge. With the sensor disconnected, measure the connector's power pin relative to ground and confirm it matches the sensor board's input requirement.
+
+If the board starts normally without the sensor but restarts after it is connected, disconnect it and recheck the voltage, connector orientation, pinout, and SDA/SCL wiring. A shorted supply or an I2C device holding a bus line low can stop startup at the `unhang I2C2 if hung` stage. Resolve that electrical problem before debugging the driver.
+
 ## 3. Get the empty driver running
 
 Use the **dummy-data generator** on the [template page](03-driver-template.md#file-generation-and-naming) for this first check. The longer example on that page contains hardware placeholders that return errors until implemented.

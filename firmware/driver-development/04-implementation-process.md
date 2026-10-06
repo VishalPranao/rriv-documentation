@@ -19,6 +19,8 @@ Put the answers and relevant datasheet sections in the [planning worksheet](driv
 
 Then compare the hardware needs with `RRIVBoard` in `board/rriv_board/src/lib.rs`. It exposes I2C, ADC, GPIO, USART, PWM, and OneWire operations, but no general SPI or I2S interface. Identify missing board support now because it adds work beyond the driver itself.
 
+If usable driver code already exists, record its repository, exact version or commit, license, hardware interface, and incomplete features. Decide which sensor logic can remain reusable and which RRIV-specific work belongs in the integration. Follow [adapting an existing driver](05-adapting-existing-driver.md) when a small board adapter can connect the two without copying the whole implementation into the RRIV driver.
+
 At this point, the plan should name the outputs, settings, hardware resources, and trait methods to implement.
 
 ## 2. Prepare and record the hardware connection

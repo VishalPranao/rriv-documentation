@@ -14,3 +14,5 @@
     * [Registry and settings](firmware/driver-development/02-registry-and-settings.md)
     * [Driver template](firmware/driver-development/03-driver-template.md)
     * [Implementation process](firmware/driver-development/04-implementation-process.md)
+    * [Adapting an existing driver](firmware/driver-development/05-adapting-existing-driver.md)
+    * [BMM350 implementation plan](firmware/driver-development/examples/bmm350-implementation-plan.md)

@@ -1,6 +1,11 @@
 Area,Question,Answer,Notes or evidence
 Identity,Device manufacturer model and revision,,
 Identity,Datasheet or protocol reference,,
+Reuse,Existing driver repository release or commit and license,,
+Reuse,Known gaps or TODOs in the existing driver,,
+Reuse,Hardware trait and embedded-hal version used by the existing driver,,
+Reuse,Boundary between reusable sensor code adapter and RRIV SensorDriver,,
+Reuse,Branch dependency revision and semantic version planned for the adapted library,,
 Role,Is this a sensor and what does it measure?,,
 Role,Does it need actuator behavior? Record as deferred work.,,
 Outputs,How many physical quantities and how many output values?,,

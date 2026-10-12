@@ -9,7 +9,7 @@ A sensor driver implements the common interface, holds device settings, and conv
 
 5. [Adapting an existing driver](05-adapting-existing-driver.md) - how to keep reusable sensor code separate from the RRIV integration.
 
-The [BMM350 implementation plan](examples/bmm350-implementation-plan.md) is a worked example built from the planning inputs, an existing Rust driver, the Bosch references, and the RRIV interfaces.
+The [BMM350 engineering plan](examples/bmm350-implementation-plan.md) is a worked example built from the planning inputs, an existing Rust driver, the Bosch references, and the RRIV interfaces.
 
 The initial template produces dummy data so registration and logging can be checked before sensor communication is implemented. Actuator work is deferred; resource requirements and compound drivers are still recorded during planning.
 

@@ -107,4 +107,4 @@ Use semantic versions for the reusable library:
 
 Pin RRIV to a reviewed tag or commit instead of an unbounded dependency. The pull request should name the library version, hardware revision, and validation performed.
 
-[Driver development](README.md) · [BMM350 implementation plan](examples/bmm350-implementation-plan.md)
+[Driver development](README.md) · [BMM350 engineering plan](examples/bmm350-implementation-plan.md)

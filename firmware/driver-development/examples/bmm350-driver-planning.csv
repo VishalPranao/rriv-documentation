@@ -1,0 +1,32 @@
+Area,Question,Answer,Notes or evidence
+Identity,Device manufacturer model and revision,Bosch Sensortec BMM350; silicon or module revision not yet recorded,BMM350 is a three-axis magnetometer with an internal temperature channel
+Identity,Datasheet or protocol reference,BST-BMM350-DS001 plus Bosch BMM350 SensorAPI,https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bmm350-ds001.pdf
+Reuse,Existing driver repository release or commit and license,wyatt-mattas/bmm350-rs 0.0.2 at f9b847495164013e6bd4b60d416cafc392f650eb; Apache-2.0,Use as a design reference; register startup and compensation behavior will be checked against Bosch SensorAPI under BSD-3-Clause
+Reuse,Known gaps or TODOs in the existing driver,Compensation is incomplete and several configuration self-test and power-mode paths contain TODOs,The reference owns its I2C and delay objects and does not fit RRIV board borrowing directly
+Reuse,Hardware trait and embedded-hal version used by the existing driver,embedded-hal 1.0 I2c and DelayNs,RRIV drivers receive &mut dyn RRIVBoard through SensorDriver methods
+Reuse,Boundary between reusable sensor code adapter and RRIV SensorDriver,src/bmm350 will own sensor protocol and persistent device state; RrivBmm350Bus will forward board operations; drivers/bmm350.rs will own RRIV settings outputs and logging,The reusable crate will have no RRIV dependency
+Reuse,Branch dependency revision and semantic version planned for the adapted library,Create a local bmm350 path dependency beginning at version 0.1.0,Use 0.1.x for compatible fixes and 0.2.0 for an incompatible public API change
+Role,Is this a sensor and what does it measure?,Yes; magnetic field on X Y and Z plus internal sensor temperature,Temperature is required for compensation and is also exposed as an RRIV output
+Role,Does it need actuator behavior? Record as deferred work.,No actuator behavior,None planned
+Outputs,How many physical quantities and how many output values?,Four output values: three magnetic axes and one temperature,Fixed output indices 0 through 3
+Outputs,For each index: label unit range and raw/calibrated meaning,0 mag_x uT compensated; 1 mag_y uT compensated; 2 mag_z uT compensated; 3 temperature degrees C compensated,Exact limits follow the BMM350 datasheet; raw register values are not exposed in the first scope
+Calibration,Can the sensor be calibrated and will calibration be implemented?,Factory OTP compensation is required and will be applied; user field calibration is deferred,OTP coefficients will be loaded during setup
+Calibration,Reference points and fitting method,No RRIV fit method in the first scope; later magnetic calibration would require hard-iron offsets and a soft-iron matrix,Reference equipment and procedure remain to be selected
+Protocol,Protocol and required commands or features,I2C2 with combined write/read; soft reset; chip-ID read; OTP reads; magnetic reset; PMU configuration; one measurement burst,BMM350 I2C reads return two dummy bytes before data
+Protocol,I2C address or ADC channel or other addressing,Default 0x14; alternate 0x15,Address is selected in special configuration
+Resources,GPIO and USART requirements,None,I2C-only driver keeps the default empty GPIO request
+Resources,PWM requirements and whether they imply deferred actuator work,None,No actuator work
+Resources,OneWire requirements,None,Not applicable
+Resources,Required board API or receive-service changes,None expected,The plan will use existing RRIVBoard ic2_write ic2_write_read delay_us and delay_ms operations
+Composition,Does this driver compose other drivers? Which ones?,No,It contains reusable BMM350 device state but no child SensorDriver
+Settings,Configuration keys defaults ranges and update behavior,address default 20 decimal; allowed 20 or 21; normal mode 100 Hz averaging 4 and XYZ are fixed,Runtime update will be deferred until measurement is stable
+Settings,Special EEPROM layout and version within 32 bytes,Version 1: byte 0 version; 1 address; 2 power mode; 3 ODR; 4 averaging; 5 axes; 6-31 zero,Restored bytes are validated before hardware access
+Hardware,Board revision and connector or port,RRIV v0.4.2 using I2C2; exact connector and BMM350 module are TBD,Record the breakout model before hardware validation
+Hardware,Sensor pin to board pin mapping,TBD: record VIN or VDD GND SDA and SCL mapping,Do not infer breakout pin order from the bare sensor datasheet
+Hardware,Supply and logic voltage requirements,TBD from the exact module; verify with its schematic and measure the RRIV connector before connection,Bare sensor and regulated breakout boards can have different requirements
+Hardware,Solder bridges: starting state required change and final state,TBD after choosing 3.3 V or 5 V for the actual module,Record original and final bridge positions; never populate conflicting supply bridges
+Timing,Initialization warmup conversion time and timeout,3 ms before reset; 24 ms after reset; OTP polls every 300 us up to 100 attempts per word; 6 ms suspend; 14 ms bit reset; 18 ms flux reset; 1 ms config update; 38 ms normal-mode entry,All polling is bounded so a missing sensor returns an error
+Errors,Invalid-reading and recovery behavior,The driver will clear cached outputs before every read and keep values unavailable on bus status timeout chip-ID or configuration errors,Recovery will require successful communication and setup; the logger must not hang
+Checks,Known response bytes and expected values,Chip ID 0x33; address 0x14 or 0x15; two leading dummy bytes on I2C reads; PMU command and read-back values must match,Fake-bus tests will cover dummy-byte removal and signed/OTP decoding
+Checks,Reference measurement and available test equipment,Rotate the sensor and apply a known or repeatable magnetic field; independent magnetometer and temperature reference are TBD,Record orientation distance and reference device when hardware testing begins
+Checks,Build flash watch logging and reboot results,Run cargo checks first; then record build flash rrivctl watch logging disconnect recovery and reboot results,Complete the acceptance list in the engineering plan during implementation

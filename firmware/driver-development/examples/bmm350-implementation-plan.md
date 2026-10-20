@@ -13,7 +13,7 @@ Development will begin with four sources:
 - The [`bmm350-rs` driver](https://github.com/wyatt-mattas/bmm350-rs/) at release `0.0.2`, commit `f9b847495164013e6bd4b60d416cafc392f650eb`, as the Rust reference.
 - RRIV's `SensorDriver`, `RRIVBoard`, registry, and existing I2C drivers for the firmware conventions that the integration must follow.
 
-The existing BMM350 Rust driver will be forked and generalized so its sensor logic works with different hardware abstraction layer (HAL) implementations. Its register types and `embedded-hal` interface provide a starting point. Before changing it, its behavior will be compared with the Bosch source, including known TODOs, incomplete compensation fields, and error paths.
+The existing BMM350 Rust driver will be forked and generalized so its sensor logic works with different hardware abstraction layer (HAL) implementations. Its register map and `embedded-hal` interface provide a starting point. Before changing it, its behavior will be compared with the Bosch source, including known TODOs, incomplete compensation fields, and error paths. The fork will have one device implementation in its existing `src/device.rs`, not a second driver module.
 
 ## Scope and main decisions
 
@@ -47,7 +47,7 @@ pub trait I2CBus {
 }
 ```
 
-The reusable sensor object will store persistent sensor state, including the address, variant ID, initialization status, and OTP coefficients. The bus and delay provider will be borrowed only while an operation runs. The fork can continue to support its existing `embedded-hal` users through an implementation of this interface.
+The reusable sensor object will store persistent sensor state, including the address, variant ID, initialization status, and OTP coefficients. The bus and delay provider will be borrowed only while an operation runs. `embedded-hal` I2C and delay types can implement these small traits, but the fork's old owned-peripheral constructor will be replaced in a new minor version.
 
 RRIV will provide a short-lived adapter inside `src/datalogger/src/drivers/bmm350.rs`:
 
@@ -64,8 +64,9 @@ The planned structure will be:
 ```text
 rrivirr/bmm350-rs/             fork of the existing driver
     src/i2c_bus.rs            reusable I2CBus and Delay interfaces
-    src/portable.rs           BMM350 setup, reads, and compensation
-    src/lib.rs                exports and existing embedded-hal API
+    src/device.rs             BMM350 setup, reads, and compensation
+    src/registers.rs          shared register map
+    src/lib.rs                public exports
 
 rriv-firmware/
     src/datalogger/Cargo.toml  Git dependency on the fork, pinned to a revision
@@ -83,7 +84,7 @@ The reusable `I2CBus` trait must be defined in the fork (or in a separate crate 
 
 These details will be settled before sensor code is changed:
 
-- **Source strategy:** fork the existing Rust driver, generalize its bus boundary, and keep the existing `embedded-hal` API usable.
+- **Source strategy:** fork the existing Rust driver, replace its incomplete device logic in `src/device.rs`, and expose one borrowed-bus API. Increase the minor version because the owned-peripheral API will change.
 - **Measurement format:** confirm the first register, read length, dummy bytes, byte order, signed conversion, status checks, scaling, and units from the datasheet.
 - **Compensation:** identify the Bosch calculation sequence and prepare raw-data and OTP test vectors with expected results and tolerances.
 - **State and recovery:** define behavior before setup, after partial setup, during repeated setup, after communication loss, and after communication returns. Check whether long polling must feed the RRIV watchdog.
@@ -94,7 +95,7 @@ These details will be settled before sensor code is changed:
 
 1. **Audit the sources.** Create a register-and-timing checklist from the datasheet. Compare the fork's initialization and compensation code with Bosch's implementation. Identify the gaps that need work.
 
-2. **Generalize the fork's API.** Define `I2CBus` and a delay interface, then adapt the fork's device state, typed errors, and `Measurement` to use them. Keep RRIV types out of the fork and preserve support for existing `embedded-hal` users.
+2. **Generalize the fork's API.** Define `I2CBus` and a delay interface, then adapt the fork's device state, typed errors, and `Measurement` to use them. Keep RRIV types out of the fork. Let `embedded-hal` peripherals use the same traits without retaining a second sensor implementation.
 
 3. **Implement register transport.** Add bounded register reads and writes, including removal of the two dummy bytes returned by BMM350 I2C reads. Test these functions with a fake bus before adding the full startup sequence.
 
